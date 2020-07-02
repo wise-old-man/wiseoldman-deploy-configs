@@ -1,10 +1,16 @@
-name: 'Wise Old Man NGINX Deploy Config'
-description: 'Builds and deploys all the code on the Wise Old Man project.'
+# action.yml
+name: 'Hello World'
+description: 'Greet someone and record the time'
+inputs:
+  who-to-greet: # id of input
+    description: 'Who to greet'
+    required: true
+    default: 'World'
+outputs:
+  time: # id of output
+    description: 'The time we greeted you'
 runs:
   using: 'docker'
   image: 'Dockerfile'
-  steps:
-    - name: Build NGINX image
-      run: |
-        docker build . --file Dockerfile --tag wiseoldman/nginx-deploy-config:latest
-        docker push wiseoldman/nginx-deploy-config:latest
+  args:
+    - ${{ inputs.who-to-greet }}
