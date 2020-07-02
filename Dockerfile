@@ -1,13 +1,8 @@
-# Fetch images from docker hub
-FROM wiseoldman/app:latest as app-build
+# Container image that runs your code
+FROM alpine:3.10
 
-# Setup NGINX image
-FROM nginx:alpine
-COPY /nginx.conf /etc/nginx/conf.d/
-RUN rm /etc/nginx/conf.d/default.conf
+# Copies your code file from your action repository to the filesystem path `/` of the container
+COPY entrypoint.sh /entrypoint.sh
 
-# Copy the App image static files into the NGINX html files
-COPY --from=app-build /wise-old-man/app/build /var/www/html/app
-
-EXPOSE 80
-CMD [ "nginx", "-g", "daemon off;" ]
+# Code file to execute when the docker container starts up (`entrypoint.sh`)
+ENTRYPOINT ["/entrypoint.sh"]
