@@ -2,12 +2,15 @@
 name: 'Hello World'
 description: 'Greet someone and record the time'
 inputs:
-  hello:
-    description: 'Test input'
+  DOCKER_USERNAME:
+    description: 'The Docker Hub username.'
     required: true
-    default: '123'
+  DOCKER_PASSWORD:
+    description: 'The Docker Hub password.'
+    required: true
 runs:
   using: 'docker'
   image: 'Dockerfile'
   args:
-    - ${{ inputs.hello }}
+    - ${{ inputs.DOCKER_USERNAME }}
+    - ${{ inputs.DOCKER_PASSWORD }}
