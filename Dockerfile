@@ -1,4 +1,4 @@
-# Fetch images from docker hub
+# Fetch website images from docker hub
 FROM wiseoldman/app:latest as app-build
 FROM wiseoldman/bot-website:latest as bot-website-build
 
