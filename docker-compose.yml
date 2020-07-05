@@ -41,6 +41,21 @@ services:
       DB_HOST: db
       REDIS_HOST: redis
     command: ['./wait-for-it.sh', '-t', '30', 'db:5432', '--', 'npm', 'start']  
+  bot:
+    image: wiseoldman/discord-bot:latest
+    env_file:
+      - ./.env
+    expose:
+      - '7000'
+    ports:
+      - '7000:7000'
+    networks:
+      - webnet
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+    command: ['./wait-for-it.sh', '-t', '30', 'db:5432', '--', 'npm', 'start']  
   docs:
     image: wiseoldman/docs:latest
     expose:
@@ -58,6 +73,7 @@ services:
       - 443:443
     links:
       - api
+      - bot
     command: '/bin/sh -c ''while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'''
     volumes:
       - ./data/certbot/conf:/etc/letsencrypt
