@@ -44,23 +44,6 @@ services:
       DB_HOST: db
       REDIS_HOST: redis
     command: ['./wait-for-it.sh', '-t', '30', 'db:5432', '--', 'npm', 'start']  
-  trailblazer-api:
-    image: wiseoldman/trailblazer-api:latest
-    env_file:
-      - ./.env
-    expose:
-      - '6000'
-    ports:
-      - '6000:6000'
-    networks:
-      - webnet
-    depends_on:
-      - db
-      - redis
-    environment:
-      DB_HOST: db
-      REDIS_HOST: redis
-    command: ['./wait-for-it.sh', '-t', '30', 'db:5432', '--', 'npm', 'start']
   bot:
     image: wiseoldman/discord-bot:latest
     env_file:
@@ -93,7 +76,6 @@ services:
       - 443:443
     links:
       - api
-      - trailblazer-api
       - bot
     command: '/bin/sh -c ''while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'''
     volumes:
