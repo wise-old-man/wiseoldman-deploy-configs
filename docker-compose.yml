@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 services:
   redis:
     image: redis
@@ -8,6 +8,7 @@ services:
       - ./.env
   db:
     image: postgres:12.4
+    shm_size: 1g
     networks:
       - webnet
       - pgadminnet
@@ -16,25 +17,25 @@ services:
     env_file:
       - ./.env
     expose:
-      - '5432'
+      - "5432"
   pgadmin:
     image: dpage/pgadmin4
     env_file:
       - ./.env
     ports:
-      - '54321:80'
-    depends_on:                                                                                                                                                                 
-    - db                        
-    networks:                     
-    - pgadminnet
+      - "54321:80"
+    depends_on:
+      - db
+    networks:
+      - pgadminnet
   api:
     image: wiseoldman/api:latest
     env_file:
       - ./.env
     expose:
-      - '5000'
+      - "5000"
     ports:
-      - '5000:5000'
+      - "5000:5000"
     networks:
       - webnet
     depends_on:
@@ -43,28 +44,28 @@ services:
     environment:
       DB_HOST: db
       REDIS_HOST: redis
-    command: ['./wait-for-it.sh', '-t', '30', 'db:5432', '--', 'npm', 'start']  
+    command: ["./wait-for-it.sh", "-t", "30", "db:5432", "--", "npm", "start"]
   bot:
     image: wiseoldman/discord-bot:latest
     env_file:
       - ./.env
     expose:
-      - '7000'
+      - "7000"
     ports:
-      - '7000:7000'
+      - "7000:7000"
     networks:
       - webnet
     depends_on:
       - db
     environment:
       DB_HOST: db
-    command: ['./wait-for-it.sh', '-t', '30', 'db:5432', '--', 'npm', 'start']  
+    command: ["./wait-for-it.sh", "-t", "30", "db:5432", "--", "npm", "start"]
   docs:
     image: wiseoldman/docs:latest
     expose:
-      - '3000'
+      - "3000"
     ports:
-      - '3000:3000'
+      - "3000:3000"
     networks:
       - webnet
   nginx:
@@ -80,9 +81,9 @@ services:
     command: '/bin/sh -c ''while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'''
     volumes:
       - ./data/certbot/conf:/etc/letsencrypt
-      - ./data/certbot/www:/var/www/certbot    
-  certbot:                                                                                                                                                                    
-  image: certbot/certbot
+      - ./data/certbot/www:/var/www/certbot
+  certbot:
+    image: certbot/certbot
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
     volumes:
       - ./data/certbot/conf:/etc/letsencrypt
