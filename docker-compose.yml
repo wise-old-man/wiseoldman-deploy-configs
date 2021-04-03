@@ -1,76 +1,69 @@
-version: '3'
+version: "3"
 services:
+  ################## Databases ##################
   redis:
     image: redis
     networks:
-      - webnet
+      - generic-network
     env_file:
       - ./.env
   db:
     image: postgres:12.4
+    shm_size: 1g
     networks:
-      - webnet
-      - pgadminnet
+      - generic-network
+      - pgadmin-network
     volumes:
       - pgdata:/var/lib/postgresql/data
     env_file:
       - ./.env
     expose:
-      - '5432'
-  pgadmin:
-    image: dpage/pgadmin4
-    env_file:
-      - ./.env
-    ports:
-      - '54321:80'
-    depends_on:                                                                                                                                                                 
-    - db                        
-    networks:                     
-    - pgadminnet
+      - "5432"
+  ################## Core ##################
   api:
     image: wiseoldman/api:latest
     env_file:
       - ./.env
     expose:
-      - '5000'
+      - "5000"
     ports:
-      - '5000:5000'
+      - "5000:5000"
     networks:
-      - webnet
+      - generic-network
     depends_on:
       - db
       - redis
     environment:
       DB_HOST: db
       REDIS_HOST: redis
-    command: ['./wait-for-it.sh', '-t', '30', 'db:5432', '--', 'npm', 'start']  
+    command: ["./wait-for-it.sh", "-t", "30", "db:5432", "--", "npm", "start"]
   bot:
     image: wiseoldman/discord-bot:latest
     env_file:
       - ./.env
     expose:
-      - '7000'
+      - "7000"
     ports:
-      - '7000:7000'
+      - "7000:7000"
     networks:
-      - webnet
+      - generic-network
     depends_on:
       - db
     environment:
       DB_HOST: db
-    command: ['./wait-for-it.sh', '-t', '30', 'db:5432', '--', 'npm', 'start']  
+    command: ["./wait-for-it.sh", "-t", "30", "db:5432", "--", "npm", "start"]
   docs:
     image: wiseoldman/docs:latest
     expose:
-      - '3000'
+      - "3000"
     ports:
-      - '3000:3000'
+      - "3000:3000"
     networks:
-      - webnet
+      - generic-network
   nginx:
     build: .
     networks:
-      - webnet
+      - generic-network
     ports:
       - 80:80
       - 443:443
@@ -80,16 +73,64 @@ services:
     command: '/bin/sh -c ''while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'''
     volumes:
       - ./data/certbot/conf:/etc/letsencrypt
-      - ./data/certbot/www:/var/www/certbot    
-  certbot:                                                                                                                                                                    
-  image: certbot/certbot
+      - ./data/certbot/www:/var/www/certbot
+  ################## Metrics ##################
+  grafana:
+    image: grafana/grafana:7.1.5
+    ports:
+      - 4000:3000
+    volumes:
+      - ./datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+      - grafana-data:/var/lib/grafana
+    networks:
+      - metrics-network
+    env_file:
+      - ./.env
+  prometheus:
+    image: prom/prometheus:v2.21.0
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    networks:
+      - metrics-network
+    command: --web.enable-lifecycle  --config.file=/etc/prometheus/prometheus.yml
+  metrics:
+    image: wiseoldman/metrics:latest
+    env_file:
+      - ./.env
+    expose:
+      - "3500"
+    ports:
+      - "3500:3500"
+    command: ["npm", "start"]
+    networks:
+      - metrics-network
+  ################## Utils ##################
+  certbot:
+    image: certbot/certbot
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
     volumes:
       - ./data/certbot/conf:/etc/letsencrypt
       - ./data/certbot/www:/var/www/certbot
+  pgadmin:
+    image: dpage/pgadmin4
+    env_file:
+      - ./.env
+    ports:
+      - "54321:80"
+    depends_on:
+      - db
+    networks:
+      - pgadmin-network
 networks:
-  webnet:
-  pgadminnet:
+  generic-network:
+  metrics-network:
+  pgadmin-network:
     driver: bridge
 volumes:
   pgdata:
+  prometheus-data:
+  grafana-data:
+    external: true
