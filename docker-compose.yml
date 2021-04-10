@@ -2,12 +2,14 @@ version: "3"
 services:
   ################## Databases ##################
   redis:
+    container_name: redis
     image: redis
     networks:
       - generic-network
     env_file:
       - ./.env
   db:
+    container_name: db
     image: postgres:12.4
     shm_size: 1g
     networks:
@@ -21,6 +23,7 @@ services:
       - "5432"
   ################## Core ##################
   api:
+    container_name: api
     image: wiseoldman/api:latest
     env_file:
       - ./.env
@@ -38,6 +41,7 @@ services:
       REDIS_HOST: redis
     command: ["./wait-for-it.sh", "-t", "30", "db:5432", "--", "npm", "start"]
   bot:
+    container_name: bot
     image: wiseoldman/discord-bot:latest
     env_file:
       - ./.env
@@ -53,6 +57,7 @@ services:
       DB_HOST: db
     command: ["./wait-for-it.sh", "-t", "30", "db:5432", "--", "npm", "start"]
   docs:
+    container_name: docs
     image: wiseoldman/docs:latest
     expose:
       - "3000"
@@ -61,6 +66,7 @@ services:
     networks:
       - generic-network
   nginx:
+    container_name: nginx
     build: .
     networks:
       - generic-network
@@ -76,6 +82,7 @@ services:
       - ./data/certbot/www:/var/www/certbot
   ################## Metrics ##################
   grafana:
+    container_name: grafana
     image: grafana/grafana:7.1.5
     ports:
       - 4000:3000
@@ -87,6 +94,7 @@ services:
     env_file:
       - ./.env
   prometheus:
+    container_name: prometheus
     image: prom/prometheus:v2.21.0
     ports:
       - 9090:9090
@@ -97,6 +105,7 @@ services:
       - metrics-network
     command: --web.enable-lifecycle  --config.file=/etc/prometheus/prometheus.yml
   metrics:
+    container_name: metrics
     image: wiseoldman/metrics:latest
     env_file:
       - ./.env
@@ -109,12 +118,14 @@ services:
       - metrics-network
   ################## Utils ##################
   certbot:
+    container_name: certbot
     image: certbot/certbot
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
     volumes:
       - ./data/certbot/conf:/etc/letsencrypt
       - ./data/certbot/www:/var/www/certbot
   pgadmin:
+    container_name: pgadmin
     image: dpage/pgadmin4
     env_file:
       - ./.env
