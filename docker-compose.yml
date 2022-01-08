@@ -40,6 +40,23 @@ services:
       DB_HOST: db
       REDIS_HOST: redis
     command: ["./wait-for-it.sh", "-t", "30", "db:5432", "--", "npm", "start"]
+  league-api:
+    image: wiseoldman/league-api:latest
+    env_file:
+      - ./.env
+    expose:
+      - '6000'
+    ports:
+      - '6000:6000'
+    networks:
+      - webnet
+    depends_on:
+      - db
+      - redis
+    environment:
+      DB_HOST: db
+      REDIS_HOST: redis
+    command: ['./wait-for-it.sh', '-t', '30', 'db:5432', '--', 'npm', 'start']
   bot:
     container_name: bot
     image: wiseoldman/discord-bot:latest
@@ -75,6 +92,7 @@ services:
       - 443:443
     links:
       - api
+      - league-api
       - bot
     command: '/bin/sh -c ''while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'''
     volumes:
