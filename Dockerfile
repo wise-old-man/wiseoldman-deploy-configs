@@ -1,5 +1,6 @@
 # Fetch website images from docker hub
 FROM wiseoldman/app:latest as app-build
+FROM wiseoldman/league-app:latest as league-app-build
 FROM wiseoldman/bot-website:latest as bot-website-build
 
 # Setup NGINX image
@@ -10,6 +11,7 @@ RUN rm /etc/nginx/conf.d/default.conf
 
 # Copy the static files into the NGINX html files
 COPY --from=app-build /wise-old-man/app/build /var/www/html/app
+COPY --from=league-app-build /wise-old-man/app/build /var/www/html/league-app
 COPY --from=bot-website-build /wise-old-man/bot-website/public /var/www/html/bot-website
 
 EXPOSE 80
