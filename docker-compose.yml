@@ -20,10 +20,6 @@ services:
       - "5000:5000"
     networks:
       - generic-network
-    depends_on:
-      - redis
-    environment:
-      REDIS_HOST: redis
   league-api:
     container_name: league-api
     image: wiseoldman/league-api:latest
@@ -35,10 +31,6 @@ services:
       - '6000:6000'
     networks:
       - generic-network
-    depends_on:
-      - redis
-    environment:
-      REDIS_HOST: redis
   bot:
     container_name: bot
     image: wiseoldman/discord-bot:latest
