@@ -8,19 +8,6 @@ services:
       - generic-network
     env_file:
       - ./.env
-  db:
-    container_name: db
-    image: postgres:12.4
-    shm_size: 1g
-    networks:
-      - generic-network
-      - pgadmin-network
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    env_file:
-      - ./.env
-    expose:
-      - "5432"
   ################## Core ##################
   api:
     container_name: api
@@ -34,13 +21,11 @@ services:
     networks:
       - generic-network
     depends_on:
-      - db
       - redis
     environment:
-      DB_HOST: db
       REDIS_HOST: redis
-    command: ["./wait-for-it.sh", "-t", "30", "db:5432", "--", "npm", "start"]
   league-api:
+    container_name: league-api
     image: wiseoldman/league-api:latest
     env_file:
       - ./.env
@@ -49,14 +34,11 @@ services:
     ports:
       - '6000:6000'
     networks:
-      - webnet
+      - generic-network
     depends_on:
-      - db
       - redis
     environment:
-      DB_HOST: db
       REDIS_HOST: redis
-    command: ['./wait-for-it.sh', '-t', '30', 'db:5432', '--', 'npm', 'start']
   bot:
     container_name: bot
     image: wiseoldman/discord-bot:latest
@@ -68,11 +50,6 @@ services:
       - "7000:7000"
     networks:
       - generic-network
-    depends_on:
-      - db
-    environment:
-      DB_HOST: db
-    command: ["./wait-for-it.sh", "-t", "30", "db:5432", "--", "npm", "start"]
   docs:
     container_name: docs
     image: wiseoldman/docs:latest
@@ -131,7 +108,6 @@ services:
       - "3500"
     ports:
       - "3500:3500"
-    command: ["npm", "start"]
     networks:
       - metrics-network
   ################## Utils ##################
@@ -149,17 +125,10 @@ services:
       - ./.env
     ports:
       - "54321:80"
-    depends_on:
-      - db
-    networks:
-      - pgadmin-network
 networks:
   generic-network:
   metrics-network:
-  pgadmin-network:
-    driver: bridge
 volumes:
-  pgdata:
   prometheus-data:
   grafana-data:
     external: true
