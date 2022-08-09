@@ -11,7 +11,7 @@ services:
   ################## Core ##################
   api:
     container_name: api
-    image: wiseoldman/api:latest
+    image: wiseoldman/api-adapted:latest
     env_file:
       - ./.env
     expose:
