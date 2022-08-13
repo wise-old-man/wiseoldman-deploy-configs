@@ -11,13 +11,24 @@ services:
   ################## Core ##################
   api:
     container_name: api
-    image: wiseoldman/api:latest
+    image: wiseoldman/api-adapted:latest
     env_file:
       - ./.env
     expose:
       - "5000"
     ports:
       - "5000:5000"
+    networks:
+      - generic-network
+  api-v2:
+    container_name: api-v2
+    image: wiseoldman/api-v2:2.0.0
+    env_file:
+      - ./.env
+    expose:
+      - "5001"
+    ports:
+      - "5001:5001"
     networks:
       - generic-network
   league-api:
@@ -61,6 +72,7 @@ services:
       - 443:443
     links:
       - api
+      - api-v2
       - league-api
       - bot
     command: '/bin/sh -c ''while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'''
