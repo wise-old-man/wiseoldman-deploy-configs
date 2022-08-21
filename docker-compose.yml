@@ -61,7 +61,7 @@ services:
       - generic-network
   bot-v1:
     container_name: bot-v1
-    image: wiseoldman/discord-bot:1:0.0
+    image: wiseoldman/discord-bot:1:0.1
     env_file:
       - ./.env
     expose:
