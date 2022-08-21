@@ -59,6 +59,17 @@ services:
       - "7000:7000"
     networks:
       - generic-network
+  bot-v1:
+    container_name: bot-v1
+    image: wiseoldman/discord-bot:1:0.0
+    env_file:
+      - ./.env
+    expose:
+      - "7001"
+    ports:
+      - "7001:7000"
+    networks:
+      - generic-network
   docs:
     container_name: docs
     image: wiseoldman/docs:latest
@@ -81,6 +92,7 @@ services:
       - api-v2
       - league-api
       - bot
+      - bot-v1
     command: '/bin/sh -c ''while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'''
     volumes:
       - ./data/certbot/conf:/etc/letsencrypt
