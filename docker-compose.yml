@@ -11,7 +11,7 @@ services:
   ################## Core ##################
   api:
     container_name: api
-    image: wiseoldman/api-adapted:latest
+    image: wiseoldman/api:latest
     env_file:
       - ./.env
     expose:
@@ -24,26 +24,13 @@ services:
       - redis
   api-v2:
     container_name: api-v2
-    image: wiseoldman/api-v2:2.0.0
+    image: wiseoldman/api-v2:latest
     env_file:
       - ./.env
     expose:
       - "5001"
     ports:
       - "5001:5001"
-    networks:
-      - generic-network
-    depends_on:
-      - redis
-  league-api:
-    container_name: league-api
-    image: wiseoldman/league-api:latest
-    env_file:
-      - ./.env
-    expose:
-      - '6000'
-    ports:
-      - '6000:6000'
     networks:
       - generic-network
     depends_on:
@@ -57,17 +44,6 @@ services:
       - "7000"
     ports:
       - "7000:7000"
-    networks:
-      - generic-network
-  bot-v1:
-    container_name: bot-v1
-    image: wiseoldman/discord-bot:1:0.1
-    env_file:
-      - ./.env
-    expose:
-      - "7001"
-    ports:
-      - "7001:7000"
     networks:
       - generic-network
   docs:
@@ -90,9 +66,7 @@ services:
     links:
       - api
       - api-v2
-      - league-api
       - bot
-      - bot-v1
     command: '/bin/sh -c ''while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'''
     volumes:
       - ./data/certbot/conf:/etc/letsencrypt
@@ -154,3 +128,4 @@ volumes:
   prometheus-data:
   grafana-data:
     external: true
+    
