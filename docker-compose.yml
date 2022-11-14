@@ -46,15 +46,6 @@ services:
       - "7000:7000"
     networks:
       - generic-network
-  docs:
-    container_name: docs
-    image: wiseoldman/docs:latest
-    expose:
-      - "3000"
-    ports:
-      - "3000:3000"
-    networks:
-      - generic-network
   nginx:
     container_name: nginx
     build: .
@@ -128,4 +119,3 @@ volumes:
   prometheus-data:
   grafana-data:
     external: true
-    
