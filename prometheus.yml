@@ -7,7 +7,3 @@ scrape_configs:
     metrics_path: /metrics/api
     static_configs:
       - targets: ["metrics:3500"]
-  - job_name: api-v2-scrape
-    metrics_path: /metrics/api-v2
-    static_configs:
-      - targets: ["metrics:3500"]
