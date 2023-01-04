@@ -22,19 +22,6 @@ services:
       - generic-network
     depends_on:
       - redis
-  api-v2:
-    container_name: api-v2
-    image: wiseoldman/api-v2:latest
-    env_file:
-      - ./.env
-    expose:
-      - "5001"
-    ports:
-      - "5001:5001"
-    networks:
-      - generic-network
-    depends_on:
-      - redis
   bot:
     container_name: bot
     image: wiseoldman/discord-bot:latest
@@ -56,7 +43,6 @@ services:
       - 443:443
     links:
       - api
-      - api-v2
       - bot
     command: '/bin/sh -c ''while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'''
     volumes:
