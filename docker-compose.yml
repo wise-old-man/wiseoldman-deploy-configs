@@ -33,6 +33,7 @@ services:
       - "7000:7000"
     networks:
       - generic-network
+      - metrics-network
   nginx:
     container_name: nginx
     build: .
