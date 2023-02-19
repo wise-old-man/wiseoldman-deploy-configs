@@ -14,8 +14,6 @@ services:
     image: wiseoldman/api:latest
     env_file:
       - ./.env
-    ports:
-      - "5000:5000"
     networks:
       - generic-network
     depends_on:
@@ -25,8 +23,6 @@ services:
     image: wiseoldman/discord-bot:latest
     env_file:
       - ./.env
-    ports:
-      - "7000:7000"
     networks:
       - generic-network
       - metrics-network
@@ -74,8 +70,6 @@ services:
     image: wiseoldman/metrics:latest
     env_file:
       - ./.env
-    ports:
-      - "3500:3500"
     networks:
       - metrics-network
   ################## Utils ##################
