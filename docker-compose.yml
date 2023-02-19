@@ -14,8 +14,6 @@ services:
     image: wiseoldman/api:latest
     env_file:
       - ./.env
-    expose:
-      - "5000"
     ports:
       - "5000:5000"
     networks:
@@ -27,8 +25,6 @@ services:
     image: wiseoldman/discord-bot:latest
     env_file:
       - ./.env
-    expose:
-      - "7000"
     ports:
       - "7000:7000"
     networks:
@@ -78,8 +74,6 @@ services:
     image: wiseoldman/metrics:latest
     env_file:
       - ./.env
-    expose:
-      - "3500"
     ports:
       - "3500:3500"
     networks:
