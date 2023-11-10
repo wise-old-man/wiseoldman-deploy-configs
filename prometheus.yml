@@ -7,6 +7,10 @@ scrape_configs:
     metrics_path: /metrics/api
     static_configs:
       - targets: ["metrics:3500"]
+  - job_name: league-api-scrape
+    metrics_path: /metrics/league-api
+    static_configs:
+      - targets: ["metrics:3500"]
   - job_name: bot-scrape
     metrics_path: /monitoring
     static_configs:
