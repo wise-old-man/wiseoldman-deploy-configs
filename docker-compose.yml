@@ -40,8 +40,6 @@ services:
     image: wiseoldman/hom:latest
     env_file:
       - ./.env
-    networks:
-      - generic-network
   nginx:
     container_name: nginx
     build: .
