@@ -35,6 +35,11 @@ services:
     networks:
       - generic-network
       - metrics-network
+  hom-bot:
+    container_name: hom-bot
+    image: wiseoldman/hom:latest
+    env_file:
+      - ./.env
   nginx:
     container_name: nginx
     build: .
