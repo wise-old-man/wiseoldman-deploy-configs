@@ -87,6 +87,20 @@ services:
       - ./.env
     networks:
       - metrics-network
+  cadvisor:
+    container_name: cadvisor
+    image: gcr.io/cadvisor/cadvisor:v0.47.2
+    privileged: true
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    networks:
+      - metrics-network
+    devices:
+      - "/dev/kmsg"
   ################## Utils ##################
   certbot:
     container_name: certbot
