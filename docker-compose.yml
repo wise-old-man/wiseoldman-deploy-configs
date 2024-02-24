@@ -8,6 +8,8 @@ services:
       - generic-network
     env_file:
       - ./.env
+    volumes:
+      - redis-data:/data
   ################## Core ##################
   api:
     container_name: api
@@ -110,6 +112,7 @@ networks:
   generic-network:
   metrics-network:
 volumes:
-  prometheus-data:
+  redis-data:
+  prometheus-data:  
   grafana-data:
     external: true
