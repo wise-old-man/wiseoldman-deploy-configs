@@ -11,6 +11,17 @@ services:
     volumes:
       - redis-data:/data
   ################## Core ##################
+  caddy:
+    container_name: caddy
+    image: caddy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - caddy-config:/config
+      - caddy-data:/data
+      - ./Caddyfile:/etc/caddy/Caddyfile
   api:
     container_name: api
     image: wiseoldman/api:latest
@@ -33,21 +44,6 @@ services:
     image: wiseoldman/hom:latest
     env_file:
       - ./.env
-  nginx:
-    container_name: nginx
-    build: .
-    networks:
-      - generic-network
-    ports:
-      - 80:80
-      - 443:443
-    links:
-      - api
-      - bot
-    command: '/bin/sh -c ''while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'''
-    volumes:
-      - ./data/certbot/conf:/etc/letsencrypt
-      - ./data/certbot/www:/var/www/certbot
   ################## Metrics ##################
   grafana:
     container_name: grafana
@@ -94,13 +90,6 @@ services:
     devices:
       - "/dev/kmsg"
   ################## Utils ##################
-  certbot:
-    container_name: certbot
-    image: certbot/certbot
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
-    volumes:
-      - ./data/certbot/conf:/etc/letsencrypt
-      - ./data/certbot/www:/var/www/certbot
   pgadmin:
     container_name: pgadmin
     image: dpage/pgadmin4
@@ -113,6 +102,8 @@ networks:
   metrics-network:
 volumes:
   redis-data:
-  prometheus-data:  
+  prometheus-data:
+  caddy-config:
+  caddy-data:
   grafana-data:
     external: true

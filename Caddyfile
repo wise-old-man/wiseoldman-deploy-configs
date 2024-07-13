@@ -1,0 +1,5 @@
+api.wiseoldman.net {
+    handle_path /v2/* {
+        reverse_proxy api:5000
+    }
+}
