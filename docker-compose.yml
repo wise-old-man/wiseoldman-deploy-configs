@@ -1,9 +1,8 @@
-version: "3"
 services:
   ################## Databases ##################
   redis:
     container_name: redis
-    image: redis
+    image: redis/redis-stack-server:7.0.6-RC8
     networks:
       - generic-network
     env_file:
@@ -22,6 +21,17 @@ services:
       - caddy-config:/config
       - caddy-data:/data
       - ./Caddyfile:/etc/caddy/Caddyfile
+    networks:
+      - generic-network
+  app:
+    container_name: app
+    image: wiseoldman/app:latest
+    networks:
+      - generic-network
+    env_file:
+      - ./.env
+    depends_on:
+      - redis
   api:
     container_name: api
     image: wiseoldman/api:latest

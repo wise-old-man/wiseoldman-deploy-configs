@@ -1,3 +1,20 @@
+www.wiseoldman.net {
+   redir https://wiseoldman.net{uri}
+}
+
+league.wiseoldman.net {
+   redir https://wiseoldman.net
+}
+
+seasonal.wiseoldman.net {
+   redir https://wiseoldman.net
+}
+
+wiseoldman.net {
+    reverse_proxy app:3000
+    encode gzip
+}
+
 api.wiseoldman.net {
     handle_path /v2/* {
         reverse_proxy api:5000
