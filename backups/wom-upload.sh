@@ -4,20 +4,15 @@
 # wom-upload.sh
 #
 # This script uploads the local backups to the remote backup server.
-#
-# Args:
-#   $1 - The host/IP of the remote server.
-#   $2 - The path to the SSH key file to authenticating.
-#   $3 - The local backup directory.
-#   $4 - The remote backup directory.
-#
-# Example:
-#   $ ./wom-upload.sh \
-#       111.112.113.114 \
-#       /path/to/ssh/private/key \
-#       /path/to/local/backup/dir \
-#       /path/to/remote/backup/dir
 # ----------------------------------------------------------------------
+
+if [ -f ../.env ]; then
+  source ../.env
+else
+  echo ".env file not found!"
+  exit 1
+fi
+
 
 # Errors and exits the script.
 #
@@ -38,42 +33,29 @@ function check_last_exit {
     fi
 }
 
-if [ -z $1 ]; then
-    # First argument is missing
-    error "Remote backup server host/IP is required";
-elif [ -z $2 ]; then
-    # Second argument is missing
-    error "Path to SSH private key is required";
-elif [ ! -f $2 ]; then
-    # Second argument isnt a file
-    error "Invalid path to SSH private key";
-elif [ -z $3 ]; then
-    # Third argument is missing
-    error "Path to local backup dir is required";
-elif [ ! -d $3 ]; then
-    # Third argument isnt a directory
+if [ -z $BACKUP_REMOTE_HOST ]; then
+    error "Remote backup server host/IP env is required";
+elif [ -z $BACKUP_LOCAL_DIR_PATH ]; then
+    error "Path to local backup dir env is required";
+elif [ ! -d $BACKUP_LOCAL_DIR_PATH ]; then
     error "Path to local backup dir is not a directory";
-elif [ -z $4 ]; then
-    # Fourth argument is missing
-    error "Path to remote backup dir is required";
+elif [ -z $BACKUP_REMOTE_DIR_PATH ]; then
+    error "Path to remote backup dir env is required";
+elif [ -z $BACKUP_LOCAL_SSH_KEY_PATH ]; then
+    error "Path to SSH private key env is required";
+elif [ ! -f $BACKUP_LOCAL_SSH_KEY_PATH ]; then
+    error "Invalid path to SSH private key";
 fi
 
-REMOTE_HOST=$1;
-SSH_KEY_PATH=$2;
-LOCAL_BACKUP_DIR=$3;
-REMOTE_BACKUP_DIR=$4;
-
 # Prune yesterdays local backups
-# find $LOCAL_BACKUP_DIR -type f -name "*.bak" -mtime +1 -exec rm -rdf {} \;
-# NOTE: For now always delete all the local backups to conserve disk space
-# When were ready to keep copies for a day revert to the above ^
-find $LOCAL_BACKUP_DIR -type f -name "*.bak" -exec rm -rdf {} \;
+find $BACKUP_LOCAL_DIR_PATH -type f -name "*.bak" -mtime +1 -exec rm -rdf {} \;
 check_last_exit "Failed to prune the local backup directory";
 
 # Upload remaining backups to the remote server
-rsync -raze "ssh -i $SSH_KEY_PATH" \
-    $LOCAL_BACKUP_DIR/ \
-    root@$REMOTE_HOST:$REMOTE_BACKUP_DIR;
+rsync -raze "ssh -i $BACKUP_LOCAL_SSH_KEY_PATH" \
+    $BACKUP_LOCAL_DIR_PATH/ \
+    root@$BACKUP_REMOTE_HOST:$BACKUP_REMOTE_DIR_PATH;
+
 
 check_last_exit "Failed upload backups to remote server";
 echo "Uploaded to remote backup directory...";

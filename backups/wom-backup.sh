@@ -7,22 +7,14 @@
 # server, creates a new backup of the current WOM and WOM bot databases,
 # stores them on the backup server, and prunes old backups from the
 # backup server.
-#
-# Args:
-#   $1 - The host/IP of the remote server.
-#   $2 - The path to the SSH key file to authenticating.
-#   $3 - The local backup directory.
-#   $4 - The remote backup directory.
-#   $5 - How many days worth of backups to keep on the remote server.
-#
-# Example:
-#   $ ./wom-backup.sh \
-#       111.112.113.114 \
-#       /path/to/ssh/private/key \
-#       /path/to/local/backup/dir \
-#       /path/to/remote/backup/dir \
-#       7
 # ----------------------------------------------------------------------
+
+if [ -f ../.env ]; then
+  source ../.env
+else
+  echo ".env file not found!"
+  exit 1
+fi
 
 # Errors and exits the script.
 #
@@ -37,18 +29,41 @@ function error {
 #
 # Args:
 #   $@ - The error message to send to discord.
-function generate_embed_json {
+function generate_error_embed_json {
     # Escape quotes and remove newlines
     DESCRIPTION=$(sed -e 's/"/\\"/g' <<< "$@" | tr -d '\n\r');
 
     cat <<EOF
 {
     "username": "WOM Backups",
-    "avatar_url": "https://jonxslays.github.io/wom.py/dev/wom-logo.png",
     "content": "<@329256344798494773>",
     "embeds": [{
         "color": 16720916,
         "title": "Database Backup Failed",
+        "description": "$DESCRIPTION"
+    }]
+}
+EOF
+}
+
+
+# Generates the JSON for a discord embed.
+#
+# Args:
+#   $1 - The embed title to send to discord.
+#   $2 - The embed message to send to discord.
+function generate_success_message_json {
+    # Escape quotes and remove newlines
+    TITLE=$(sed -e 's/"/\\"/g' <<< "$1" | tr -d '\n\r');
+    DESCRIPTION=$(sed -e 's/"/\\"/g' <<< "$2" | tr -d '\n\r');
+
+    cat <<EOF
+{
+    "username": "WOM Backups",
+    "content": "",
+    "embeds": [{
+        "color": 5763719,
+        "title": "$TITLE",
         "description": "$DESCRIPTION"
     }]
 }
@@ -60,10 +75,20 @@ EOF
 # Args:
 #   $@ - The error message to send to discord.
 function send_webhook_error {
-    # TODO: Add webhook url
-    curl -X POST "" \
+    curl -X POST "$BACKUP_WEBHOOK_URL" \
       -H "Content-Type: application/json" \
-      -d "$(generate_embed_json "$@")";
+      -d "$(generate_error_embed_json "$@")";
+}
+
+# Sends a message to the WOM discord if the backup succeeds.
+#
+# Args:
+#   $1 - The embed title to send to discord.
+#   $2 - The embed message to send to discord.
+function send_webhook_success {
+    curl -X POST "$BACKUP_WEBHOOK_URL" \
+      -H "Content-Type: application/json" \
+      -d "$(generate_success_message_json "$1" "$2")";
 }
 
 # Checks the last exit code was 0, and exits the program if not.
@@ -77,60 +102,43 @@ function check_last_exit {
     fi
 }
 
-NUMBER_REGEX='^[0-9]+$';
-if [ -z $1 ]; then
-    # First argument is missing
-    error "ERROR: Remote backup server host/IP is required";
-elif [ -z $2 ]; then
-    # Second argument is missing
-    error "ERROR: Path to SSH private key is required";
-elif [ ! -f $2 ]; then
-    # Second argument isnt a file
-    error "ERROR: Invalid path to SSH private key";
-elif [ -z $3 ]; then
-    # Third argument is missing
-    error "ERROR: Path to local backup dir is required";
-elif [ ! -d $3 ]; then
-    # Third argument isnt a directory
-    error "ERROR: Path to local backup dir is not a directory";
-elif [ -z $4 ]; then
-    # Fourth argument is missing
-    error "ERROR: Path to remote backup dir is required";
-elif [ -z $5 ]; then
-    # Fifth argument is missing
-    error "ERROR: Number of days worth of files to keep is required.";
-elif ! [[ $5 =~ $NUMBER_REGEX ]]; then
-    # A non-numeric was used for prune keep days
-    error "ERROR: Prune keep days must be a number.";
+if [ -z $BACKUP_WEBHOOK_URL ]; then
+    error "Webhook URL is required";
 fi
 
+SECONDS=0
+
 echo "Starting database backups...";
-REMOTE_HOST=$1;
-SSH_KEY_PATH=$2;
-LOCAL_BACKUP_DIR=$3;
-REMOTE_BACKUP_DIR=$4;
-PRUNE_KEEP_DAYS=$5;
 
 # Dump the WOM bot db into the local directory
-WOM_DB=$(./wom-dump.sh "wise-old-man" $LOCAL_BACKUP_DIR);
-check_last_exit $WOM_DB;
-echo "Dumped WOM db...";
+echo "Dumping core db...";
+CORE_DB=$(./wom-dump.sh "wise-old-man");
+check_last_exit $CORE_DB;
+echo "Dumped core db.";
 
 # Dump the discord bot db into the local directory
-BOT_DB=$(./wom-dump.sh "discord-bot" $LOCAL_BACKUP_DIR);
+echo "Dumping bot db...";
+BOT_DB=$(./wom-dump.sh "discord-bot");
 check_last_exit $BOT_DB;
-echo "Dumped bot db...";
+echo "Dumped bot db.";
 
 # Upload backups from the local backup dir to remote backup dir
-UPLOAD=$(./wom-upload.sh $REMOTE_HOST $SSH_KEY_PATH $LOCAL_BACKUP_DIR $REMOTE_BACKUP_DIR);
+echo "Uploading to remote server...";
+UPLOAD=$(./wom-upload.sh);
 check_last_exit $UPLOAD;
-echo "Pruned old backups from local server...";
-echo "Backups uploaded to remote server...";
+echo "Pruned old backups from local server.";
+echo "Backups uploaded to remote server.";
 
 # Prune old backups from the remote server
-PRUNE=$(./wom-prune.sh $REMOTE_BACKUP_DIR $PRUNE_KEEP_DAYS $REMOTE_HOST $SSH_KEY_PATH);
+echo "Pruning old backups on remote server...";
+PRUNE=$(./wom-prune.sh);
 check_last_exit $PRUNE;
-echo "Pruned old backups from remote server...";
+echo "Pruned old backups from remote server.";
+
+elapsed=$SECONDS
+
+duration="$((elapsed / 60)) minutes and $((elapsed % 60)) seconds"
 
 # All went well
-echo "Success!";
+echo "Success! Duration: $duration."
+send_webhook_success "Database backup succeeded!" "Duration: $duration"

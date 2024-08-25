@@ -7,12 +7,18 @@
 #
 # Args:
 #   $1 - The name of the database that should be dumped.
-#   $2 - The directory where the backup should be stored. This directory
-#        will be created if it does not exist.
 #
 # Example:
-#   $ ./wom-dump.sh wise-old-man_LOCAL /path/to/backup/dir
+#   $ ./wom-dump.sh wise-old-man_LOCAL
 # ----------------------------------------------------------------------
+
+if [ -f ../.env ]; then
+  source ../.env
+else
+  echo ".env file not found!"
+  exit 1
+fi
+
 
 # Errors and exits the script.
 #
@@ -38,8 +44,13 @@ function check_last_exit {
 # Args:
 #   $1 - The environment variable to get without the $ prefix.
 function get_docker_env {
-    docker exec db env | grep -oP "$1=\K.*";
-    check_last_exit "Failed to get $1 from docker environment";
+    value=$(docker exec db env | grep "^$1=" | cut -d'=' -f2-)
+
+    if [ -z "$value" ]; then
+        error "Failed to get $1 from docker environment"
+    else
+        echo $value
+    fi
 }
 
 # Dumps the specified database inside docker to the local filesystem.
@@ -59,18 +70,19 @@ function dump_db {
 
 if [ -z $1 ]; then
     error "Database name is required";
-elif [ -z $2 ]; then
-    error "Backup directory is required";
+elif [ -z $BACKUP_LOCAL_DIR_PATH ]; then
+    error "Backup directory env is required";
 fi
 
-BACKUP_DIR=$2;
+
 DATABASE_NAME=$1;
 POSTGRES_USER=$(get_docker_env "POSTGRES_USER");
-BACKUP_FILE="$DATABASE_NAME-$(date +'%Y-%m-%dT%H:%M:%S').bak";
-BACKUP_PATH="$BACKUP_DIR/$BACKUP_FILE";
 
-mkdir -p $BACKUP_DIR;
-check_last_exit "Failed to create backup directory - $BACKUP_DIR";
+BACKUP_FILE="$DATABASE_NAME-$(date +'%Y-%m-%dT%H:%M:%S').bak";
+BACKUP_PATH="$BACKUP_LOCAL_DIR_PATH/$BACKUP_FILE";
+
+mkdir -p $BACKUP_LOCAL_DIR_PATH;
+check_last_exit "Failed to create backup directory - $BACKUP_LOCAL_DIR_PATH";
 
 dump_db $POSTGRES_USER $DATABASE_NAME $BACKUP_PATH;
 echo "Backup file: $BACKUP_PATH";
