@@ -110,17 +110,17 @@ SECONDS=0
 
 echo "Starting database backups...";
 
-# Dump the WOM bot db into the local directory
-echo "Dumping core db...";
-CORE_DB=$(./wom-dump.sh "wise-old-man");
-check_last_exit $CORE_DB;
-echo "Dumped core db.";
-
 # Dump the discord bot db into the local directory
 echo "Dumping bot db...";
 BOT_DB=$(./wom-dump.sh "discord-bot");
 check_last_exit $BOT_DB;
 echo "Dumped bot db.";
+
+# Dump the WOM bot db into the local directory
+echo "Dumping core db...";
+CORE_DB=$(./wom-dump.sh "wise-old-man");
+check_last_exit $CORE_DB;
+echo "Dumped core db.";
 
 # Upload backups from the local backup dir to remote backup dir
 echo "Uploading to remote server...";

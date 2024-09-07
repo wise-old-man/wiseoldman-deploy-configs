@@ -60,7 +60,7 @@ function get_docker_env {
 #   $2 - The database to dump.
 #   $3 - The path to file to dump to. (will be overwritten if it exists)
 function dump_db {
-    docker exec -it db pg_dump -Fc -U $1 $2 > $3;
+    docker exec -it db pg_dump -Z1 -U $1 $2 > $3;
 
     if [ $? -ne 0 ]; then
         ERROR=$(sed -e 's/"/\"/g' $3);
