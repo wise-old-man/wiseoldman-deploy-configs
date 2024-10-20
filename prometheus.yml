@@ -7,12 +7,19 @@ scrape_configs:
     scrape_interval: 180s
     static_configs:
       - targets: ["metrics:3500"]
+
   - job_name: bot-scrape
     metrics_path: /monitoring
     scrape_interval: 180s
     static_configs:
       - targets: ["bot:7000"]
+
   - job_name: "cadvisor"
     scrape_interval: 30s
     static_configs:
       - targets: ["cadvisor:8080"]
+
+  - job_name: "node-exporter"
+    scrape_interval: 30s
+    static_configs:
+      - targets: ["node-exporter:9100"]
