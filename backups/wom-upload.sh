@@ -48,7 +48,7 @@ elif [ ! -f $BACKUP_LOCAL_SSH_KEY_PATH ]; then
 fi
 
 # Prune yesterdays local backups
-find $BACKUP_LOCAL_DIR_PATH -type f -name "*.bak" -mtime +0 -exec rm -rdf {} \;
+find $BACKUP_LOCAL_DIR_PATH -type f -name "*.bak" -mmin +360 -exec rm -rdf {} \;
 check_last_exit "Failed to prune the local backup directory";
 
 # Upload remaining backups to the remote server
