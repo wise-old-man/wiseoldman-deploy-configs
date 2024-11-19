@@ -19,4 +19,8 @@ api.wiseoldman.net {
     handle_path /v2/* {
         reverse_proxy api:5000
     }
+    
+    handle_path /league/* {
+        reverse_proxy league-api:5001
+    }
 }
