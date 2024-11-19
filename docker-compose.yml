@@ -48,7 +48,7 @@ services:
       - redis
   league-api:
     container_name: league-api
-    image: wiseoldman/leagie-api:latest
+    image: wiseoldman/league-api:latest
     env_file:
       - ./.env
     networks:
