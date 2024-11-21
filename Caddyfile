@@ -3,7 +3,8 @@ www.wiseoldman.net {
 }
 
 league.wiseoldman.net {
-   redir https://wiseoldman.net
+    reverse_proxy league-app:3000
+    encode gzip
 }
 
 seasonal.wiseoldman.net {
