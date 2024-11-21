@@ -55,6 +55,15 @@ services:
       - generic-network
     depends_on:
       - redis
+  league-app:
+    container_name: league-app
+    image: wiseoldman/league-app:latest
+    networks:
+      - generic-network
+    env_file:
+      - ./.env
+    depends_on:
+      - redis
   bot:
     container_name: bot
     image: wiseoldman/discord-bot:latest
