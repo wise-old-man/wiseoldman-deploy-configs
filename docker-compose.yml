@@ -17,6 +17,8 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    env_file:
+      - ./.env
     logging:
       driver: "json-file"
       options:
@@ -44,6 +46,7 @@ services:
       - ./.env
     networks:
       - generic-network
+      - metrics-network
     depends_on:
       - redis
   league-api:
@@ -53,6 +56,7 @@ services:
       - ./.env
     networks:
       - generic-network
+      - metrics-network
     depends_on:
       - redis
   league-app:
@@ -81,25 +85,23 @@ services:
   grafana:
     container_name: grafana
     image: grafana/grafana:7.5.17
-    ports:
-      - 4000:3000
     volumes:
       - ./datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
       - grafana-data:/var/lib/grafana
     networks:
       - metrics-network
+      - generic-network
     env_file:
       - ./.env
   prometheus:
     container_name: prometheus
     image: prom/prometheus:v2.21.0
-    ports:
-      - 9090:9090
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus-data:/prometheus
     networks:
       - metrics-network
+      - generic-network
     command: --web.enable-lifecycle  --config.file=/etc/prometheus/prometheus.yml
   metrics:
     container_name: metrics

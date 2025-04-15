@@ -25,3 +25,15 @@ api.wiseoldman.net {
         reverse_proxy league-api:5001
     }
 }
+
+prometheus.wiseoldman.net {
+    reverse_proxy prometheus:9090
+
+    basicauth {
+      {$PROMETHEUS_AUTH_USER} {$PROMETHEUS_AUTH_PASS_HASH}
+    }
+}
+
+grafana.wiseoldman.net {
+    reverse_proxy grafana:3000
+}
