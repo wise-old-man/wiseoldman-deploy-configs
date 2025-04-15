@@ -46,6 +46,7 @@ services:
       - ./.env
     networks:
       - generic-network
+      - metrics-network
     depends_on:
       - redis
   league-api:
@@ -55,6 +56,7 @@ services:
       - ./.env
     networks:
       - generic-network
+      - metrics-network
     depends_on:
       - redis
   league-app:
