@@ -3,8 +3,10 @@ global:
 
 scrape_configs:
   - job_name: api-scrape
-    metrics_path: /metrics/api
-    scrape_interval: 180s
+    metrics_path: /metrics
+    params:
+      source: ["api"]
+    scrape_interval: 30s
     static_configs:
       - targets: ["metrics:3500"]
 
