@@ -15,11 +15,13 @@ scrape_configs:
     static_configs:
       - targets: ["metrics:3500"]
 
-  - job_name: bot-scrape
-    metrics_path: /monitoring
-    scrape_interval: 180s
+  - job_name: discord-bot-scrape
+    metrics_path: /metrics
+    params:
+      source: ["discord-bot"]
+    scrape_interval: 30s
     static_configs:
-      - targets: ["bot:7000"]
+      - targets: ["metrics:3500"]
 
   - job_name: "cadvisor"
     scrape_interval: 30s
