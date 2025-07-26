@@ -3,8 +3,7 @@ www.wiseoldman.net {
 }
 
 league.wiseoldman.net {
-    reverse_proxy league-app:3000
-    encode gzip
+    redir https://wiseoldman.net
 }
 
 seasonal.wiseoldman.net {
@@ -19,10 +18,6 @@ wiseoldman.net {
 api.wiseoldman.net {
     handle_path /v2/* {
         reverse_proxy api:5000
-    }
-    
-    handle_path /league/* {
-        reverse_proxy league-api:5001
     }
 }
 

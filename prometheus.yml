@@ -10,11 +10,6 @@ scrape_configs:
     static_configs:
       - targets: ["metrics:3500"]
 
-  - job_name: league-api-scrape
-    metrics_path: /metrics/league-api
-    static_configs:
-      - targets: ["metrics:3500"]
-
   - job_name: discord-bot-scrape
     metrics_path: /metrics
     params:

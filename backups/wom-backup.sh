@@ -116,12 +116,6 @@ BOT_DB=$(./wom-dump.sh "discord-bot");
 check_last_exit $BOT_DB;
 echo "Dumped bot db.";
 
-# Dump the WOM league db into the local directory
-echo "Dumping league db...";
-LEAGUE_DB=$(./wom-dump.sh "league-raging-echoes");
-check_last_exit $LEAGUE_DB;
-echo "Dumped league db.";
-
 # Dump the WOM bot db into the local directory
 echo "Dumping core db...";
 CORE_DB=$(./wom-dump.sh "wise-old-man");
