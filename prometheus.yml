@@ -4,11 +4,25 @@ global:
 scrape_configs:
   - job_name: api-scrape
     metrics_path: /metrics
+    scrape_interval: 30s
     params:
       source: ["api"]
-    scrape_interval: 30s
     static_configs:
       - targets: ["metrics:3500"]
+        labels:
+          thread_index: "0"
+      - targets: ["metrics:3500"]
+        labels:
+          thread_index: "1"
+      - targets: ["metrics:3500"]
+        labels:
+          thread_index: "2"
+      - targets: ["metrics:3500"]
+        labels:
+          thread_index: "3"
+    relabel_configs:
+      - source_labels: [thread_index]
+        target_label: __param_thread_index
 
   - job_name: discord-bot-scrape
     metrics_path: /metrics
