@@ -25,7 +25,15 @@ prometheus.wiseoldman.net {
     reverse_proxy prometheus:9090
 
     basicauth {
-      {$PROMETHEUS_AUTH_USER} {$PROMETHEUS_AUTH_PASS_HASH}
+      admin {$ADMIN_AUTH_PASSWORD_HASH}
+    }
+}
+
+bull.wiseoldman.net {
+    reverse_proxy bull-board:5100
+
+    basicauth {
+      admin {$ADMIN_AUTH_PASSWORD_HASH}
     }
 }
 
