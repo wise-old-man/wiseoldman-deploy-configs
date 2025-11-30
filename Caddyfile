@@ -17,7 +17,7 @@ wiseoldman.net {
 
 api.wiseoldman.net {
     handle_path /v2/* {
-        reverse_proxy api:5000
+        reverse_proxy server-api:5000
     }
 }
 
@@ -30,7 +30,7 @@ prometheus.wiseoldman.net {
 }
 
 bull.wiseoldman.net {
-    reverse_proxy bull-board:5100
+    reverse_proxy server-bull-board:5100
 
     basicauth {
       admin {$ADMIN_AUTH_PASSWORD_HASH}

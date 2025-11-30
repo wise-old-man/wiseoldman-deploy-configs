@@ -60,22 +60,40 @@ services:
       - ./.env
     depends_on:
       - redis
-  api:
-    container_name: api
-    image: wiseoldman/api:latest
+  server-api:
+    container_name: server-api
+    image: wiseoldman/server:latest
     env_file:
       - ./.env
+    environment:
+      - SERVER_TYPE=api
+      - PM2_INSTANCES=2
     networks:
       - generic-network
       - metrics-network
     depends_on:
       - redis
-  bull-board:
-    container_name: bull-board
-    image: wiseoldman/api:latest
-    command: ["npm", "run", "prod:bull-board"]
+  server-job-runner:
+    container_name: server-job-runner
+    image: wiseoldman/server:latest
     env_file:
       - ./.env
+    environment:
+      - SERVER_TYPE=job-runner
+      - PM2_INSTANCES=2
+    networks:
+      - generic-network
+      - metrics-network
+    depends_on:
+      - redis
+  server-bull-board:
+    container_name: server-bull-board
+    image: wiseoldman/server:latest
+    env_file:
+      - ./.env
+    environment:
+      - SERVER_TYPE=bull-board
+      - PM2_INSTANCES=1
     networks:
       - generic-network
     depends_on:
