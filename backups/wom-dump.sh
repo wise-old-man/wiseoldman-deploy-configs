@@ -84,5 +84,12 @@ BACKUP_PATH="$BACKUP_LOCAL_DIR_PATH/$BACKUP_FILE";
 mkdir -p $BACKUP_LOCAL_DIR_PATH;
 check_last_exit "Failed to create backup directory - $BACKUP_LOCAL_DIR_PATH";
 
+ESTIMATED_REQUIRED_MB=170000 # 170 GB, update as needed
+AVAILABLE_MB=$(df -BM "$BACKUP_LOCAL_DIR_PATH" | awk 'NR==2 {print $4}' | sed 's/M//')
+
+if [ "$AVAILABLE_MB" -lt "$ESTIMATED_REQUIRED_MB" ]; then
+    error "Insufficient disk space: ${AVAILABLE_MB}MB available, est. ${ESTIMATED_REQUIRED_MB}MB required"
+fi
+
 dump_db $POSTGRES_USER $DATABASE_NAME $BACKUP_PATH;
 echo "Backup file: $BACKUP_PATH";

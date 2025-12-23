@@ -110,6 +110,11 @@ SECONDS=0
 
 echo "Starting database backups...";
 
+echo "Pruning old local backups...";
+find $BACKUP_LOCAL_DIR_PATH -type f -name "*.bak" -mmin +720 -exec rm -f {} \;
+check_last_exit "Failed to prune local backups";
+echo "Pruned old local backups.";
+
 # Dump the discord bot db into the local directory
 echo "Dumping bot db...";
 BOT_DB=$(./wom-dump.sh "discord-bot");
