@@ -13,20 +13,10 @@ services:
     container_name: db
     image: postgres:14.2
     shm_size: 4g
-    command: >
-      postgres
-      -c max_connections=100
-      -c shared_buffers=2GB
-      -c effective_cache_size=5GB
-      -c work_mem=16MB
-      -c maintenance_work_mem=512MB
-      -c idle_in_transaction_session_timeout=300s
-      -c autovacuum_max_workers=3
-      -c autovacuum_vacuum_scale_factor=0.05
-      -c autovacuum_analyze_scale_factor=0.02
-      -c autovacuum_naptime=10s
+    entrypoint: ["/usr/local/bin/postgres-start.sh"]
     volumes:
       - /mnt/volume_lon1_02/pgdata:/var/lib/postgresql/data
+      - ./postgres-start.sh:/usr/local/bin/postgres-start.sh:ro
     networks:
       - generic-network
     env_file:
