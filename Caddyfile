@@ -11,6 +11,18 @@ seasonal.wiseoldman.net {
 }
 
 wiseoldman.net {
+    @bots {
+        header User-Agent *Googlebot*
+    }
+
+    rate_limit @bots {
+        zone bot_zone {
+            key    {remote_host}
+            events 1000
+            window 1h
+        }
+    }
+
     reverse_proxy app:3000
     encode gzip
 }

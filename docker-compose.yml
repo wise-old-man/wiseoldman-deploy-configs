@@ -41,7 +41,9 @@ services:
   ################## Core ##################
   caddy:
     container_name: caddy
-    image: caddy
+    build:
+      context: .
+      dockerfile: caddy.dockerfile
     restart: always
     ports:
       - "80:80"
