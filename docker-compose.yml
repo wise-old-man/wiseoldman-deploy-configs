@@ -3,6 +3,7 @@ services:
   redis:
     container_name: redis
     image: redis/redis-stack-server:7.0.6-RC8
+    command: redis-server --requirepass ${REDIS_PASSWORD}
     networks:
       - generic-network
     env_file:
