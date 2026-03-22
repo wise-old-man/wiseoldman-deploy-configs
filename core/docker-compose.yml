@@ -41,8 +41,6 @@ services:
       - ./.env
     expose:
       - "5432"
-    ports:
-      - "5432:5432"
   ################## Core ##################
   caddy:
     container_name: caddy
@@ -82,19 +80,6 @@ services:
       - ./.env
     environment:
       - SERVER_TYPE=api
-      - PM2_INSTANCES=2
-    networks:
-      - generic-network
-      - metrics-network
-    depends_on:
-      - redis
-  server-job-runner:
-    container_name: server-job-runner
-    image: wiseoldman/server:latest
-    env_file:
-      - ./.env
-    environment:
-      - SERVER_TYPE=job-runner
       - PM2_INSTANCES=2
     networks:
       - generic-network
