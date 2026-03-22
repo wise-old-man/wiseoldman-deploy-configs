@@ -1,0 +1,38 @@
+services:
+  server-job-runner:
+    container_name: server-job-runner
+    image: wiseoldman/server:latest
+    env_file:
+      - ./.env
+    environment:
+      - SERVER_TYPE=job-runner
+      - PM2_INSTANCES=2
+  cadvisor:
+    container_name: cadvisor
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    privileged: true
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    ports:
+      - "${WORKER_PRIVATE_IP}:8080:8080"
+    devices:
+      - "/dev/kmsg"
+  node-exporter:
+    container_name: node-exporter
+    image: prom/node-exporter:latest
+    restart: unless-stopped
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - "--path.procfs=/host/proc"
+      - "--path.rootfs=/rootfs"
+      - "--path.sysfs=/host/sys"
+      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+    ports:
+      - "${WORKER_PRIVATE_IP}:9100:9100"
