@@ -3,22 +3,21 @@
 # Compares local production files against the master branch on GitHub.
 # Run this manually on the server to detect drift.
 #
-# Usage: ./check-config-drift [directory]
+# Usage: ./check-config-drift.sh <server>
 #
 # Examples:
-#   ./check-config-drift            # files at repo root → /home/psikoi/wise-old-man/
-#   ./check-config-drift main       # files under main/  → /home/psikoi/wise-old-man/main/
-#   ./check-config-drift secondary  # files under secondary/ → /home/psikoi/wise-old-man/secondary/
+#   ./check-config-drift.sh core    # files under core/   on GitHub → /home/psikoi/wise-old-man/
+#   ./check-config-drift.sh worker  # files under worker/ on GitHub → /home/psikoi/wise-old-man/
 
 SERVER_DIR="$1"
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-
-if [ -n "$SERVER_DIR" ]; then
-  BASE_DIR="${SCRIPT_DIR}/${SERVER_DIR}"
-else
-  BASE_DIR="${SCRIPT_DIR}"
+if [ -z "$SERVER_DIR" ]; then
+  echo "Usage: $0 <server>"
+  echo "  server: core | worker"
+  exit 1
 fi
+
+BASE_DIR="/home/psikoi/wise-old-man"
 
 GITHUB_REPO="wise-old-man/wiseoldman-deploy-configs"
 GITHUB_BRANCH="master"
@@ -35,11 +34,7 @@ diffs_found=0
 errors_found=0
 
 echo ""
-if [ -n "$SERVER_DIR" ]; then
-  echo -e "${BOLD}Fetching file list from ${GITHUB_REPO}@${GITHUB_BRANCH} (${SERVER_DIR}/)...${RESET}"
-else
-  echo -e "${BOLD}Fetching file list from ${GITHUB_REPO}@${GITHUB_BRANCH}...${RESET}"
-fi
+echo -e "${BOLD}Fetching file list from ${GITHUB_REPO}@${GITHUB_BRANCH} (${SERVER_DIR}/)...${RESET}"
 echo ""
 
 # Extract blob paths from the GitHub tree API response
@@ -50,14 +45,10 @@ if [ -z "$all_files" ]; then
   exit 1
 fi
 
-if [ -n "$SERVER_DIR" ]; then
-  github_files=$(echo "$all_files" | grep "^${SERVER_DIR}/")
-  if [ -z "$github_files" ]; then
-    echo -e "${RED}ERROR${RESET} No files found under '${SERVER_DIR}/' in the GitHub tree. Check the directory name."
-    exit 1
-  fi
-else
-  github_files="$all_files"
+github_files=$(echo "$all_files" | grep "^${SERVER_DIR}/")
+if [ -z "$github_files" ]; then
+  echo -e "${RED}ERROR${RESET} No files found under '${SERVER_DIR}/' in the GitHub tree. Check the directory name."
+  exit 1
 fi
 
 echo -e "${BOLD}Comparing files...${RESET}"
@@ -66,11 +57,7 @@ echo ""
 IGNORE_FILES=("README.md" "LICENSE" ".gitignore" ".env.example")
 
 while IFS= read -r file; do
-  if [ -n "$SERVER_DIR" ]; then
-    relative="${file#${SERVER_DIR}/}"
-  else
-    relative="$file"
-  fi
+  relative="${file#${SERVER_DIR}/}"
 
   skip=0
   for ignore in "${IGNORE_FILES[@]}"; do
@@ -145,12 +132,8 @@ while IFS= read -r file; do
   fi
 done <<< "$github_files"
 
-# Build a list of relative paths from github_files (strip SERVER_DIR prefix if present)
-if [ -n "$SERVER_DIR" ]; then
-  github_relatives=$(echo "$github_files" | sed "s|^${SERVER_DIR}/||")
-else
-  github_relatives="$github_files"
-fi
+# Build a list of relative paths from github_files (strip SERVER_DIR prefix)
+github_relatives=$(echo "$github_files" | sed "s|^${SERVER_DIR}/||")
 
 # Check for local files that don't exist on GitHub
 while IFS= read -r local_file; do
