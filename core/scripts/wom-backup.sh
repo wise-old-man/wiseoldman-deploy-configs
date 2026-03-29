@@ -127,18 +127,11 @@ CORE_DB=$(./wom-dump.sh "wise-old-man");
 check_last_exit $CORE_DB;
 echo "Dumped core db.";
 
-# Upload backups from the local backup dir to remote backup dir
-echo "Uploading to remote server...";
+# Upload backups from the local backup dir to R2
+echo "Uploading to R2...";
 UPLOAD=$(./wom-upload.sh);
 check_last_exit $UPLOAD;
-echo "Pruned old backups from local server.";
-echo "Backups uploaded to remote server.";
-
-# Prune old backups from the remote server
-echo "Pruning old backups on remote server...";
-PRUNE=$(./wom-prune.sh);
-check_last_exit $PRUNE;
-echo "Pruned old backups from remote server.";
+echo "Backups uploaded to R2.";
 
 elapsed=$SECONDS
 
