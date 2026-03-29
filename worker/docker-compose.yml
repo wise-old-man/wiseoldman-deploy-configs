@@ -7,6 +7,14 @@ services:
     environment:
       - SERVER_TYPE=job-runner
       - PM2_INSTANCES=2
+  league-server-job-runner:
+    container_name: league-server-job-runner
+    image: wiseoldman/league-server:latest
+    env_file:
+      - ./.env
+    environment:
+      - SERVER_TYPE=job-runner
+      - PM2_INSTANCES=2
   cadvisor:
     container_name: cadvisor
     image: gcr.io/cadvisor/cadvisor:v0.49.1

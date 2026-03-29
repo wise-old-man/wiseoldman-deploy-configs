@@ -31,6 +31,10 @@ api.wiseoldman.net {
     handle_path /v2/* {
         reverse_proxy server-api:5000
     }
+    
+    handle_path /league/* {
+        reverse_proxy league-server-api:5001
+    }
 }
 
 prometheus.wiseoldman.net {
@@ -43,6 +47,14 @@ prometheus.wiseoldman.net {
 
 bull.wiseoldman.net {
     reverse_proxy server-bull-board:5100
+
+    basicauth {
+      admin {$CADDY_ADMIN_AUTH_PASSWORD_HASH}
+    }
+}
+
+league-bull.wiseoldman.net {
+    reverse_proxy league-server-bull-board:5100
 
     basicauth {
       admin {$CADDY_ADMIN_AUTH_PASSWORD_HASH}
