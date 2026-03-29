@@ -99,6 +99,31 @@ services:
       - generic-network
     depends_on:
       - redis
+  league-server-api:
+    container_name: league-server-api
+    image: wiseoldman/league-server:latest
+    env_file:
+      - ./.env
+    environment:
+      - SERVER_TYPE=api
+      - PM2_INSTANCES=2
+    networks:
+      - generic-network
+      - metrics-network
+    depends_on:
+      - redis
+  league-server-bull-board:
+    container_name: league-server-bull-board
+    image: wiseoldman/league-server:latest
+    env_file:
+      - ./.env
+    environment:
+      - SERVER_TYPE=bull-board
+      - PM2_INSTANCES=1
+    networks:
+      - generic-network
+    depends_on:
+      - redis
   bot:
     container_name: bot
     image: wiseoldman/discord-bot:latest
@@ -114,6 +139,8 @@ services:
     image: wiseoldman/hom:latest
     env_file:
       - ./.env
+    networks:
+      - generic-network
   ################## Metrics ##################
   grafana:
     container_name: grafana
