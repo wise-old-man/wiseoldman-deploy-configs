@@ -3,7 +3,7 @@
 # ----------------------------------------------------------------------
 # wom-upload.sh
 #
-# This script uploads the local backups to the remote backup server.
+# This script uploads the local backups to Cloudflare R2.
 # ----------------------------------------------------------------------
 
 if [ -f ../.env ]; then
@@ -33,25 +33,27 @@ function check_last_exit {
     fi
 }
 
-if [ -z $BACKUP_REMOTE_HOST ]; then
-    error "Remote backup server host/IP env is required";
+if [ -z $BACKUP_R2_ACCOUNT_ID ]; then
+    error "R2 account ID env is required";
+elif [ -z $BACKUP_R2_ACCESS_KEY_ID ]; then
+    error "R2 access key ID env is required";
+elif [ -z $BACKUP_R2_SECRET_ACCESS_KEY ]; then
+    error "R2 secret access key env is required";
+elif [ -z $BACKUP_R2_BUCKET_NAME ]; then
+    error "R2 bucket name env is required";
 elif [ -z $BACKUP_LOCAL_DIR_PATH ]; then
     error "Path to local backup dir env is required";
 elif [ ! -d $BACKUP_LOCAL_DIR_PATH ]; then
     error "Path to local backup dir is not a directory";
-elif [ -z $BACKUP_REMOTE_DIR_PATH ]; then
-    error "Path to remote backup dir env is required";
-elif [ -z $BACKUP_LOCAL_SSH_KEY_PATH ]; then
-    error "Path to SSH private key env is required";
-elif [ ! -f $BACKUP_LOCAL_SSH_KEY_PATH ]; then
-    error "Invalid path to SSH private key";
 fi
 
-# Upload remaining backups to the remote server
-rsync -raze "ssh -i $BACKUP_LOCAL_SSH_KEY_PATH" \
-    $BACKUP_LOCAL_DIR_PATH/ \
-    root@$BACKUP_REMOTE_HOST:$BACKUP_REMOTE_DIR_PATH;
+RCLONE_CONFIG_R2_TYPE=s3 \
+RCLONE_CONFIG_R2_PROVIDER=Cloudflare \
+RCLONE_CONFIG_R2_ACCESS_KEY_ID=$BACKUP_R2_ACCESS_KEY_ID \
+RCLONE_CONFIG_R2_SECRET_ACCESS_KEY=$BACKUP_R2_SECRET_ACCESS_KEY \
+RCLONE_CONFIG_R2_ENDPOINT=https://${BACKUP_R2_ACCOUNT_ID}.r2.cloudflarestorage.com \
+RCLONE_CONFIG_R2_CHUNK_SIZE=25M \
+rclone copy $BACKUP_LOCAL_DIR_PATH R2:$BACKUP_R2_BUCKET_NAME
 
-
-check_last_exit "Failed upload backups to remote server";
-echo "Uploaded to remote backup directory...";
+check_last_exit "Failed to upload backups to R2";
+echo "Uploaded to R2 bucket $BACKUP_R2_BUCKET_NAME...";
