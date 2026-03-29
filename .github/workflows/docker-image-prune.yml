@@ -10,7 +10,7 @@ jobs:
       - name: Prune Docker Images
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.DO_HOST }}
+          host: ${{ secrets.DO_CORE_HOST }}
           key: ${{ secrets.DO_SSH_KEY }}
           username: ${{ secrets.DO_USER }}
           script: |
