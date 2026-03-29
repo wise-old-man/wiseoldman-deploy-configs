@@ -87,20 +87,6 @@ services:
       - metrics-network
     depends_on:
       - redis
-  server-job-runner:
-    container_name: server-job-runner
-    image: wiseoldman/server:latest
-    env_file:
-      - ./.env
-    environment:
-      - SERVER_TYPE=job-runner
-      - PM2_INSTANCES=1
-      - SERVER_JOB_RUNNER_CRON_JOBS=disabled
-    networks:
-      - generic-network
-      - metrics-network
-    depends_on:
-      - redis
   server-bull-board:
     container_name: server-bull-board
     image: wiseoldman/server:latest
