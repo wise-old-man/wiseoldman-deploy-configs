@@ -4,13 +4,24 @@ on:
   schedule:
     - cron: 0 6 * * *
 jobs:
-  prune:
+  prune-core:
     runs-on: ubuntu-latest
     steps:
-      - name: Prune Docker Images
+      - name: Prune Docker Images (Core)
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.DO_CORE_HOST }}
+          key: ${{ secrets.DO_SSH_KEY }}
+          username: ${{ secrets.DO_USER }}
+          script: |
+            docker image prune -af
+  prune-worker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prune Docker Images (Worker)
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DO_WORKER_HOST }}
           key: ${{ secrets.DO_SSH_KEY }}
           username: ${{ secrets.DO_USER }}
           script: |
