@@ -44,7 +44,6 @@ services:
       - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
     ports:
       - "${WORKER_PRIVATE_IP}:9100:9100"
-
   promtail:
     container_name: promtail
     image: grafana/promtail:2.9.10
@@ -55,6 +54,5 @@ services:
     command: -config.file=/etc/promtail/config.yml -config.expand-env=true
     env_file:
       - ./.env
-
 volumes:
   promtail-positions:
