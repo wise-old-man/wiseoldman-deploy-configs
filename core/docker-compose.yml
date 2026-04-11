@@ -99,6 +99,15 @@ services:
       - generic-network
     depends_on:
       - redis
+  league-app:
+    container_name: league-app
+    image: wiseoldman/league-app:latest
+    networks:
+      - generic-network
+    env_file:
+      - ./.env
+    depends_on:
+      - redis
   league-server-api:
     container_name: league-server-api
     image: wiseoldman/league-server:latest
