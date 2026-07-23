@@ -2,13 +2,25 @@ www.wiseoldman.net {
    redir https://wiseoldman.net{uri}
 }
 
-league.wiseoldman.net {
-   reverse_proxy league-app:3000
-   encode gzip
-}
-
 seasonal.wiseoldman.net {
    redir https://wiseoldman.net
+}
+
+league.wiseoldman.net {
+    @bots {
+        header User-Agent *Googlebot*
+    }
+
+    rate_limit @bots {
+        zone bot_zone {
+            key    {remote_host}
+            events 100
+            window 1h
+        }
+    }
+
+   reverse_proxy league-app:3000
+   encode gzip
 }
 
 wiseoldman.net {
