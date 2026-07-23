@@ -6,7 +6,12 @@ services:
       - ./.env
     environment:
       - SERVER_TYPE=job-runner
-      - PM2_INSTANCES=2
+      - PM2_INSTANCES=3
+    logging:
+      driver: json-file
+      options:
+        max-size: "100m"
+        max-file: "3"
   league-server-job-runner:
     container_name: league-server-job-runner
     image: wiseoldman/league-server:latest
@@ -14,7 +19,12 @@ services:
       - ./.env
     environment:
       - SERVER_TYPE=job-runner
-      - PM2_INSTANCES=2
+      - PM2_INSTANCES=1
+    logging:
+      driver: json-file
+      options:
+        max-size: "100m"
+        max-file: "3"
   cadvisor:
     container_name: cadvisor
     image: gcr.io/cadvisor/cadvisor:v0.49.1
