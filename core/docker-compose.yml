@@ -268,7 +268,7 @@ services:
       - generic-network
     depends_on:
       - pgbouncer
-    loki:
+  loki:
     container_name: loki
     image: grafana/loki:3.3.2
     volumes:
