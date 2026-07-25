@@ -139,9 +139,9 @@ github_relatives=$(echo "$github_files" | sed "s|^${SERVER_DIR}/||")
 while IFS= read -r local_file; do
   relative="${local_file#${BASE_DIR}/}"
 
-  # Skip .env (gitignored by design), .git/, and files not needed in production
+  # Skip .env (gitignored by design), .git/, server-only artifacts, and files not needed in production
   case "$relative" in
-    .env|.git/*) continue ;;
+    .env|.git/*|*.log|*.bak) continue ;;
   esac
 
   skip=0
