@@ -48,19 +48,11 @@ services:
     container_name: pgbouncer
     image: edoburu/pgbouncer:v1.24.1-p1
     environment:
-      - LISTEN_PORT=6432
-      - DB_HOST=db
-      - DB_PORT=${POSTGRES_PORT}
       - DB_USER=${POSTGRES_USER}
       - DB_PASSWORD=${POSTGRES_PASSWORD}
       - AUTH_TYPE=scram-sha-256
-      - POOL_MODE=transaction
-      - ADMIN_USERS=${POSTGRES_USER}
-      - IGNORE_STARTUP_PARAMETERS=extra_float_digits,search_path
-      - DEFAULT_POOL_SIZE=${PGBOUNCER_DEFAULT_POOL_SIZE}
-      - RESERVE_POOL_SIZE=${PGBOUNCER_RESERVE_POOL_SIZE}
-      - MAX_CLIENT_CONN=${PGBOUNCER_MAX_CLIENT_CONN}
-      - MAX_PREPARED_STATEMENTS=${PGBOUNCER_MAX_PREPARED_STATEMENTS}
+    volumes:
+      - ./pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini
     ports:
       - "${CORE_PRIVATE_IP}:6432:6432"
     networks:
