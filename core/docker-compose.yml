@@ -26,6 +26,13 @@ services:
       -c maintenance_work_mem=512MB
       -c max_wal_size=8GB
       -c min_wal_size=2GB
+      -c checkpoint_timeout=15min
+      -c wal_compression=on
+      -c random_page_cost=1.1
+      -c effective_io_concurrency=200
+      -c jit=off
+      -c track_io_timing=on
+      -c log_checkpoints=on
       -c idle_in_transaction_session_timeout=300s
       -c autovacuum_max_workers=3
       -c autovacuum_vacuum_scale_factor=0.01
