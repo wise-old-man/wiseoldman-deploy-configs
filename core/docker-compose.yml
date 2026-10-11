@@ -1,3 +1,9 @@
+x-logging: &default-logging
+  driver: "json-file"
+  options:
+    max-size: "100m"
+    max-file: "3"
+
 services:
   ################## Databases ##################
   redis:
@@ -13,6 +19,7 @@ services:
       - ./.env
     volumes:
       - redis-data:/data
+    logging: *default-logging
   db:
     container_name: db
     image: postgres:14.2
@@ -51,6 +58,7 @@ services:
       - ./.env
     expose:
       - "5432"
+    logging: *default-logging
   pgbouncer:
     container_name: pgbouncer
     image: edoburu/pgbouncer:v1.24.1-p1
@@ -66,11 +74,7 @@ services:
       - generic-network
     depends_on:
       - db
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "100m"
-        max-file: "5"
+    logging: *default-logging
   ################## Core ##################
   caddy:
     container_name: caddy
@@ -83,17 +87,13 @@ services:
       - "443:443"
     env_file:
       - ./.env
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "100m"
-        max-file: "10"
     volumes:
       - caddy-config:/config
       - caddy-data:/data
       - ./Caddyfile:/etc/caddy/Caddyfile
     networks:
       - generic-network
+    logging: *default-logging
   app:
     container_name: app
     image: wiseoldman/app:latest
@@ -103,6 +103,7 @@ services:
       - ./.env
     depends_on:
       - redis
+    logging: *default-logging
   server-api:
     container_name: server-api
     image: wiseoldman/server:latest
@@ -116,6 +117,7 @@ services:
       - metrics-network
     depends_on:
       - redis
+    logging: *default-logging
   server-bull-board:
     container_name: server-bull-board
     image: wiseoldman/server:latest
@@ -128,6 +130,7 @@ services:
       - generic-network
     depends_on:
       - redis
+    logging: *default-logging
   league-app:
     container_name: league-app
     image: wiseoldman/league-app:latest
@@ -137,6 +140,7 @@ services:
       - ./.env
     depends_on:
       - redis
+    logging: *default-logging
   league-server-api:
     container_name: league-server-api
     image: wiseoldman/league-server:latest
@@ -150,6 +154,7 @@ services:
       - metrics-network
     depends_on:
       - redis
+    logging: *default-logging
   league-server-bull-board:
     container_name: league-server-bull-board
     image: wiseoldman/league-server:latest
@@ -162,6 +167,7 @@ services:
       - generic-network
     depends_on:
       - redis
+    logging: *default-logging
   bot:
     container_name: bot
     image: wiseoldman/discord-bot:latest
@@ -172,6 +178,7 @@ services:
     networks:
       - generic-network
       - metrics-network
+    logging: *default-logging
   hom-bot:
     container_name: hom-bot
     image: wiseoldman/hom:latest
@@ -181,6 +188,7 @@ services:
       - generic-network
     volumes:
     - ./hom-github-private-key.pem:/hom-github-private-key.pem:ro
+    logging: *default-logging
   ################## Metrics ##################
   grafana:
     container_name: grafana
@@ -193,6 +201,7 @@ services:
       - generic-network
     env_file:
       - ./.env
+    logging: *default-logging
   prometheus:
     container_name: prometheus
     image: prom/prometheus:v2.21.0
@@ -203,6 +212,7 @@ services:
       - metrics-network
       - generic-network
     command: --web.enable-lifecycle  --config.file=/etc/prometheus/prometheus.yml
+    logging: *default-logging
   metrics:
     container_name: metrics
     image: wiseoldman/metrics:latest
@@ -212,6 +222,7 @@ services:
       - metrics-network
     ports:
       - "${CORE_PRIVATE_IP}:3500:3500"
+    logging: *default-logging
   cadvisor:
     container_name: cadvisor
     image: gcr.io/cadvisor/cadvisor:v0.47.2
@@ -226,6 +237,7 @@ services:
       - metrics-network
     devices:
       - "/dev/kmsg"
+    logging: *default-logging
   node-exporter:
     image: prom/node-exporter:latest
     container_name: node-exporter
@@ -243,6 +255,7 @@ services:
       - 9100
     networks:
       - metrics-network
+    logging: *default-logging
   postgres-exporter:
     container_name: postgres-exporter
     image: quay.io/prometheuscommunity/postgres-exporter:v0.20.1
@@ -259,6 +272,7 @@ services:
       - generic-network
     depends_on:
       - db
+    logging: *default-logging
   pgbouncer-exporter:
     container_name: pgbouncer-exporter
     image: quay.io/prometheuscommunity/pgbouncer-exporter:v0.10.2
@@ -269,6 +283,7 @@ services:
       - generic-network
     depends_on:
       - pgbouncer
+    logging: *default-logging
   loki:
     container_name: loki
     image: grafana/loki:3.3.2
@@ -280,6 +295,7 @@ services:
       - "${CORE_PRIVATE_IP}:3100:3100"
     networks:
       - metrics-network
+    logging: *default-logging
   promtail:
     container_name: promtail
     image: grafana/promtail:2.9.10
@@ -292,6 +308,7 @@ services:
       - metrics-network
     depends_on:
       - loki
+    logging: *default-logging
   ################## Utils ##################
   pgadmin:
     container_name: pgadmin
@@ -302,6 +319,7 @@ services:
       - ./.env
     ports:
       - "54321:80"
+    logging: *default-logging
 networks:
   generic-network:
   metrics-network:
