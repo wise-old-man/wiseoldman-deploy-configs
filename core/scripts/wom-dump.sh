@@ -60,13 +60,16 @@ function get_docker_env {
 #   $2 - The database to dump.
 #   $3 - The path to file to dump to. (will be overwritten if it exists)
 function dump_db {
-    docker exec db pg_dump -Z1 -U $1 $2 > $3;
+    docker exec db pg_dump -Z1 -U $1 $2 > $3 2> $3.err;
 
     if [ $? -ne 0 ]; then
-        ERROR=$(sed -e 's/"/\"/g' $3);
+        ERROR=$(tail -c 2000 $3.err);
+        rm -f $3 $3.err;
         error "Failed to dump. $ERROR";
     fi
+    rm -f $3.err;
 }
+
 
 if [ -z $1 ]; then
     error "Database name is required";
