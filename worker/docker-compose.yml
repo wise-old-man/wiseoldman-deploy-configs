@@ -14,15 +14,6 @@ services:
       - SERVER_TYPE=job-runner
       - PM2_INSTANCES=3
     logging: *default-logging
-  league-server-job-runner:
-    container_name: league-server-job-runner
-    image: wiseoldman/league-server:latest
-    env_file:
-      - ./.env
-    environment:
-      - SERVER_TYPE=job-runner
-      - PM2_INSTANCES=1
-    logging: *default-logging
   cadvisor:
     container_name: cadvisor
     image: gcr.io/cadvisor/cadvisor:v0.49.1

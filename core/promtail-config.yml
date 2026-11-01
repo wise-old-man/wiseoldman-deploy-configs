@@ -15,7 +15,7 @@ scrape_configs:
         refresh_interval: 5s
         filters:
           - name: name
-            values: [caddy, bot, hom-bot, app, server-api, server-job-runner, league-app, league-server-api, league-server-job-runner]
+            values: [caddy, bot, hom-bot, app, server-api, server-job-runner]
     relabel_configs:
       - source_labels: [__meta_docker_container_name]
         regex: /(.*)
